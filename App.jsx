@@ -8,6 +8,10 @@ import MoreScreen from './screens/MoreScreen';
 import {View, Text, StyleSheet, Image} from 'react-native';
 
 const Tab = createBottomTabNavigator();
+const HomeIcon = require('./images/icons8-home-50.png');
+const CategoryIcon = require('./images/CategoryIcon.png');
+const QuizIcon = require('./images/QuizIcon.png');
+const MoreIcon = require('./images/MoreIcon.png');
 
 function AppHeader() {
   return (
@@ -31,10 +35,58 @@ export default function App() {
           tabBarActiveTintColor: 'white',
           tabBarInactiveTintColor: 'black',
         }}>
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Category" component={CategoryScreen} />
-        <Tab.Screen name="Quiz" component={QuizScreen} />
-        <Tab.Screen name="More" component={MoreScreen} />
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            tabBarIcon: ({focused, color, size}) => (
+              <Image
+                source={HomeIcon}
+                style={{width: size, height: size}}
+                resizeMode="contain"
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Category"
+          component={CategoryScreen}
+          options={{
+            tabBarIcon: ({focused, color, size}) => (
+              <Image
+                source={CategoryIcon}
+                style={{width: size, height: size}}
+                resizeMode="contain"
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Quiz"
+          component={QuizScreen}
+          options={{
+            tabBarIcon: ({focused, color, size}) => (
+              <Image
+                source={QuizIcon}
+                style={{width: size, height: size}}
+                resizeMode="contain"
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="More"
+          component={MoreScreen}
+          options={{
+            tabBarIcon: ({focused, color, size}) => (
+              <Image
+                source={MoreIcon}
+                style={{width: size, height: size}}
+                resizeMode="contain"
+              />
+            ),
+          }}
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );
