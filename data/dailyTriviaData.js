@@ -2,37 +2,37 @@ const dailyTriviaData = [
   {
     question: 'What is the capital of France?',
     options: ['New York', 'London', 'Paris', 'Dublin'],
-    correctAnswer: 'Paris',
+    correct: 'Paris',
   },
   {
     question: "Which planet in our solar system is known as the 'Red Planet'?",
     options: ['Mercury', 'Saturn', 'Venus', 'Mars'],
-    correctAnswer: 'Mars',
+    correct: 'Mars',
   },
   {
     question: 'Where is the Great Barrier Reef located?',
     options: ['Australia', 'Canada', 'Cuba', 'The Bahamas'],
-    correctAnswer: 'Australia',
+    correct: 'Australia',
   },
   {
     question: 'What continent is the only one to span all four hemispheres?',
     options: ['Australia', 'Asia', 'Africa', 'Europe'],
-    correctAnswer: 'Africa',
+    correct: 'Africa',
   },
   {
     question: 'Which country has the highest population?',
     options: ['China', 'India', 'United States', 'Brazil'],
-    correctAnswer: 'China',
+    correct: 'China',
   },
   {
     question: 'Which river is the longest in the world?',
     options: ['Amazon', 'Nile', 'Yangtze', 'Mississippi'],
-    correctAnswer: 'Nile',
+    correct: 'Nile',
   },
   {
     question: "Which of the following is a correct plural form of 'octopus'?",
     options: ['Octopi', 'Octopodes', 'Octopuses', 'Octopods'],
-    correctAnswer: 'Octopuses',
+    correct: 'Octopuses',
   },
   {
     question:
@@ -43,8 +43,7 @@ const dailyTriviaData = [
       'The flowers danced in the wind.',
       'He has a heart of gold.',
     ],
-    correctAnswer:
-      "I'm reading a book on anti-gravity. It's impossible to put down!",
+    correct: "I'm reading a book on anti-gravity. It's impossible to put down!",
   },
 ];
 

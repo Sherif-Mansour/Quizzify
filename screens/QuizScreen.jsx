@@ -2,7 +2,6 @@ import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   Text,
-  Button,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
@@ -17,7 +16,7 @@ const QuizScreen = ({route, navigation}) => {
   const [selectedOptions, setSelectedOptions] = useState(
     initialSelectedOptions,
   );
-  const [submitted, setSubmitted] = useState(false);
+  const [state, setState] = useState('no quiz');
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [skippedCount, setSkippedCount] = useState(0);
@@ -31,36 +30,31 @@ const QuizScreen = ({route, navigation}) => {
   };
 
   const handleSubmit = () => {
-    setSubmitted(true);
+    setState('submitted');
+    let correct = 0;
+    let incorrect = 0;
+    let skipped = 0;
+    selectedOptions.forEach((selectedOption, index) => {
+      if (
+        selectedOption ===
+        questions[index].options.indexOf(questions[index].correct)
+      ) {
+        correct++; // Increment correct count if the selected option matches the correct index
+      } else if (selectedOption === -1) {
+        skipped++; // Increment skipped count if the selected option is -1 (unanswered)
+      } else {
+        incorrect++; // Increment incorrect count for all other cases
+      }
+    });
+    setCorrectCount(correct);
+    setIncorrectCount(incorrect);
+    setSkippedCount(skipped);
   };
-
-  useEffect(() => {
-    if (submitted) {
-      let correct = 0;
-      let incorrect = 0;
-      let skipped = 0;
-      selectedOptions.forEach((selectedOption, index) => {
-        if (
-          selectedOption ===
-          questions[index].options.indexOf(questions[index].correct)
-        ) {
-          correct++; // Increment correct count if the selected option matches the correct index
-        } else if (selectedOption === -1) {
-          skipped++; // Increment skipped count if the selected option is -1 (unanswered)
-        } else {
-          incorrect++; // Increment incorrect count for all other cases
-        }
-      });
-      setCorrectCount(correct);
-      setIncorrectCount(incorrect);
-      setSkippedCount(skipped);
-    }
-  }, [submitted]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setSelectedOptions(initialSelectedOptions);
-      setSubmitted(false);
+      setState('started');
       setCorrectCount(0);
       setIncorrectCount(0);
       setSkippedCount(0);
@@ -70,11 +64,22 @@ const QuizScreen = ({route, navigation}) => {
     return unsubscribe;
   }, [navigation]);
 
+  useEffect(() => {
+    if (category != null) {
+      setState('started');
+    }
+  }, [category]);
+
+  const handleReviewPress = () => {
+    setState('review');
+    scrollViewRef.current.scrollTo({y: 0, animated: true}); // Scroll to top
+  };
+
   const handlePlayPress = () => {
     const randomCategoryIndex = Math.floor(Math.random() * quizData.length);
     const randomCategory = quizData[randomCategoryIndex].category;
     setSelectedOptions(initialSelectedOptions);
-    setSubmitted(false);
+    setState('started');
     setCorrectCount(0);
     setIncorrectCount(0);
     setSkippedCount(0);
@@ -87,60 +92,65 @@ const QuizScreen = ({route, navigation}) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container} ref={scrollViewRef}>
-      <Text style={styles.category}>{category} Quiz</Text>
-      {questions.map((question, index) => (
-        <View key={index} style={styles.questionWrapper}>
-          <View style={styles.questionContainer}>
-            <Text style={styles.questionText}>{question.question}</Text>
-            {question.options.map((option, optionIndex) => {
-              const selected = selectedOptions[index] === optionIndex;
-              const isCorrect = option === question.correct;
-              const isIncorrect = selected && !isCorrect;
-              const isUnanswered = !selected && !submitted;
-              const isSkipped =
-                !selected && submitted && option === question.correct;
-              return (
-                <TouchableOpacity
-                  key={optionIndex}
-                  style={[
-                    styles.optionContainer,
-                    submitted &&
-                    selectedOptions[index] === optionIndex &&
-                    isCorrect
-                      ? styles.correctOptionContainer
-                      : submitted &&
-                        selectedOptions[index] === optionIndex &&
-                        isIncorrect
-                      ? styles.incorrectOptionContainer
-                      : isUnanswered
-                      ? styles.unansweredOptionContainer
-                      : isSkipped
-                      ? styles.skippedOptionContainer
-                      : null,
-                  ]}
-                  onPress={() => handleOptionSelect(index, optionIndex)}
-                  disabled={submitted}>
-                  <RadioButton
-                    value={optionIndex}
-                    status={selected ? 'checked' : 'unchecked'}
+      {state == 'no quiz' && (
+        <Text style={styles.category}>No quiz selected</Text>
+      )}
+      {state != 'no quiz' && (
+        <Text style={styles.category}>{category} Quiz</Text>
+      )}
+      {(state == 'started' || state == 'review') &&
+        questions.map((question, index) => (
+          <View key={index} style={styles.questionWrapper}>
+            <View style={styles.questionContainer}>
+              <Text style={styles.questionText}>{question.question}</Text>
+              {question.options.map((option, optionIndex) => {
+                const selected = selectedOptions[index] === optionIndex;
+                const isCorrect = option === question.correct;
+                const isIncorrect = selected && !isCorrect;
+                const isUnanswered = !selected && !(state == 'review');
+                const isSkipped =
+                  !selected && state == 'review' && option === question.correct;
+                return (
+                  <TouchableOpacity
+                    key={optionIndex}
+                    style={[
+                      styles.optionContainer,
+                      state == 'review' &&
+                      selectedOptions[index] === optionIndex &&
+                      isCorrect
+                        ? styles.correctOptionContainer
+                        : state == 'review' &&
+                          selectedOptions[index] === optionIndex &&
+                          isIncorrect
+                        ? styles.incorrectOptionContainer
+                        : isUnanswered
+                        ? styles.unansweredOptionContainer
+                        : isSkipped
+                        ? styles.skippedOptionContainer
+                        : null,
+                    ]}
                     onPress={() => handleOptionSelect(index, optionIndex)}
-                    disabled={submitted}
-                    color="#FFFFFF"
-                  />
-                  <Text style={styles.optionText}>{option}</Text>
-                </TouchableOpacity>
-              );
-            })}
+                    disabled={state == 'review'}>
+                    <RadioButton
+                      value={optionIndex}
+                      status={selected ? 'checked' : 'unchecked'}
+                      onPress={() => handleOptionSelect(index, optionIndex)}
+                      disabled={state == 'review'}
+                      color="#FFFFFF"
+                    />
+                    <Text style={styles.optionText}>{option}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
-        </View>
-      ))}
-      <TouchableOpacity
-        style={[styles.submitButton, submitted ? styles.disabledButton : null]}
-        onPress={handleSubmit}
-        disabled={submitted}>
-        <Text style={styles.submitButtonText}>Submit</Text>
-      </TouchableOpacity>
-      {submitted && (
+        ))}
+      {state == 'started' && (
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+          <Text style={styles.submitButtonText}>Submit</Text>
+        </TouchableOpacity>
+      )}
+      {(state == 'submitted' || state == 'review') && (
         <View style={styles.summaryContainer}>
           <Text style={styles.summaryText}>
             Your performance on this {category} quiz was:
@@ -154,6 +164,15 @@ const QuizScreen = ({route, navigation}) => {
           <Text style={styles.summaryText}>
             Skipped Questions: {skippedCount}
           </Text>
+          {state == 'submitted' && (
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[styles.button, styles.reviewButton]}
+                onPress={handleReviewPress}>
+                <Text style={styles.buttonText}>Review</Text>
+              </TouchableOpacity>
+            </View>
+          )}
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={[styles.button, styles.playButton]}
@@ -197,7 +216,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   questionContainer: {
-    marginBottom: 20,
+    marginBottom: 5,
     alignItems: 'flex-start',
   },
   questionText: {
@@ -211,7 +230,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 5,
     borderRadius: 5,
-    padding: 10,
+    padding: 3,
     width: '100%',
   },
   optionText: {
@@ -278,6 +297,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  reviewButton: {
+    backgroundColor: 'red',
   },
   playButton: {
     backgroundColor: 'orange',

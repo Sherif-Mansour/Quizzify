@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Image, StyleSheet, Pressable} from 'react-native';
+import {Image, StyleSheet, Pressable} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useNavigation, useIsFocused} from '@react-navigation/native';
 import HomeScreen from '../screens/HomeScreen';
