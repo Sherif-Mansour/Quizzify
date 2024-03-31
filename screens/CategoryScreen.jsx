@@ -1,90 +1,94 @@
 import React from 'react';
-import { View, Text, StyleSheet,TouchableOpacity,ScrollView} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  Image,
+} from 'react-native';
 
+const categories = [
+  {id: 1, name: 'Animals', icon: require('../assets/images/AnimalsIcon.png')},
+  {
+    id: 2,
+    name: 'Geography',
+    icon: require('../assets/images/GeographyIcon.png'),
+  },
+  {id: 3, name: 'Grammar', icon: require('../assets/images/GrammarIcon.png')},
+  {id: 4, name: 'History', icon: require('../assets/images/HistoryIcon.png')},
+  {id: 5, name: 'Music', icon: require('../assets/images/MusicIcon.png')},
+  {id: 6, name: 'Sports', icon: require('../assets/images/SportsIcon.png')},
+  {id: 7, name: 'Science', icon: require('../assets/images/ScienceIcon.png')},
+  {id: 8, name: 'Maths', icon: require('../assets/images/MathsIcon.png')},
+  {id: 9, name: 'Movies', icon: require('../assets/images/MoviesIcon.png')},
+  {id: 10, name: 'Art', icon: require('../assets/images/ArtIcon.png')},
+];
 
+const CategoryScreen = ({navigation}) => {
+  const handleCategorySelect = categoryName => {
+    navigation.navigate('Quiz', {category: categoryName});
+  };
 
+  const renderItem = ({item}) => (
+    <TouchableOpacity
+      style={styles.categoryItem}
+      onPress={() => handleCategorySelect(item.name)}>
+      <Image source={item.icon} style={styles.categoryIcon} />
+      <Text style={styles.categoryName}>{item.name}</Text>
+    </TouchableOpacity>
+  );
 
-export default function CategoryScreen({ navigation}) {
-    const categories = [
-         "Grammar",
-         "History", 
-         "Geography",
-         "Sports", 
-         "Music", 
-         "Animals", 
-    ];
-
-
-
-
-
-    return (
-        <ScrollView>
-        <View style={styles.container}>
-        <Text style= {styles.headerText}>Select the category you would like to be quizzed on below:</Text>
-        <View style={styles.categoryContainer}>
-        {categories.map((category) => (
-            <TouchableOpacity
-            key={category}
-            style={styles.categoryButton}
-            onPress={() => navigation.navigate('Quiz', { category })}
-            >
-            <Text style={styles.categoryText}>{category}</Text>
-            </TouchableOpacity>
-        ))}
-        </View>
-        </View>
-        </ScrollView>
-        
-    );
-    }
+  return (
+    <View style={styles.container}>
+      <Text style={styles.heading}>Choose a Category</Text>
+      <FlatList
+        data={categories}
+        renderItem={renderItem}
+        keyExtractor={item => item.id.toString()}
+        numColumns={2}
+        contentContainerStyle={styles.categoryList}
+      />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        backgroundColor: '#0569b0',
-        padding: 10,
-    },
-
-    headerText: {
-        
-        display: 'flex',
-        fontSize: 20,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        margin: 20,
-        color: 'white',
-        borderWidth: 2,
-        borderColor: 'black',
-        borderRadius: 10,
-        padding: 10,
-        backgroundColor: '#0096FF',
-        paddingVertical: 12,
-    },
-
-    categoryContainer: {
-        display: 'flex',
-        justifyContent: 'center',
-    
-    },
-
-    categoryButton: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#0096FF',
-        margin: 10,
-        borderRadius: 10,
-        borderWidth: 2,
-        borderColor: 'black',
-    },
-
-    categoryText: {
-        fontSize: 20,
-        color: 'white',
-        textAlign: 'center',
-        padding: 19,
-    },
+  container: {
+    flex: 1,
+    backgroundColor: '#0569B0',
+    paddingHorizontal: 20,
+    paddingTop: 40,
+  },
+  heading: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  categoryList: {
+    alignItems: 'center',
+  },
+  categoryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#47B2FF',
+    borderRadius: 10,
+    padding: 10,
+    margin: 10,
+    width: '45%',
+  },
+  categoryIcon: {
+    width: 50,
+    height: 50,
+    marginRight: 10,
+  },
+  categoryName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
 });
+
+export default CategoryScreen;
