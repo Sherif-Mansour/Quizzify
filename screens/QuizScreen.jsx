@@ -6,9 +6,21 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import {RadioButton} from 'react-native-paper'; // Import RadioButton component from react-native-paper
 import quizData from '../data/quizData';
+
+import AnimalsIcon from '../assets/images/AnimalsIcon.png';
+import ArtIcon from '../assets/images/ArtIcon.png';
+import GeographyIcon from '../assets/images/GeographyIcon.png';
+import GrammarIcon from '../assets/images/GrammarIcon.png';
+import HistoryIcon from '../assets/images/HistoryIcon.png';
+import MathsIcon from '../assets/images/MathsIcon.png';
+import MoviesIcon from '../assets/images/MoviesIcon.png';
+import MusicIcon from '../assets/images/MusicIcon.png';
+import ScienceIcon from '../assets/images/ScienceIcon.png';
+import SportsIcon from '../assets/images/SportsIcon.png';
 
 const QuizScreen = ({route, navigation}) => {
   const {category} = route.params;
@@ -87,7 +99,10 @@ const QuizScreen = ({route, navigation}) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container} ref={scrollViewRef}>
-      <Text style={styles.category}>{category} Quiz</Text>
+      <View style={styles.header}>
+        <Image source={getCategoryIcon(category)} style={styles.icon} />
+        <Text style={styles.category}>{category} Quiz</Text>
+      </View>
       {questions.map((question, index) => (
         <View key={index} style={styles.questionWrapper}>
           <View style={styles.questionContainer}>
@@ -172,12 +187,47 @@ const QuizScreen = ({route, navigation}) => {
   );
 };
 
+const getCategoryIcon = category => {
+  switch (category) {
+    case 'Animals':
+      return AnimalsIcon;
+    case 'Art':
+      return ArtIcon;
+    case 'Geography':
+      return GeographyIcon;
+    case 'Grammar':
+      return GrammarIcon;
+    case 'History':
+      return HistoryIcon;
+    case 'Maths':
+      return MathsIcon;
+    case 'Movies':
+      return MoviesIcon;
+    case 'Music':
+      return MusicIcon;
+    case 'Science':
+      return ScienceIcon;
+    case 'Sports':
+      return SportsIcon;
+    default:
+      return null;
+  }
+};
+
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     alignItems: 'center',
     backgroundColor: '#0569B0',
     padding: 20,
+  },
+  header: {
+    alignItems: 'center',
+  },
+  icon: {
+    width: 70,
+    height: 70,
+    marginBottom: 10,
   },
   category: {
     fontSize: 24,
