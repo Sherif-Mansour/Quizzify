@@ -95,6 +95,7 @@ const QuizScreen = ({route, navigation}) => {
     setIncorrectCount(0);
     setSkippedCount(0);
     navigation.navigate('Quiz', {category: randomCategory});
+    scrollViewRef.current.scrollTo({y: 0, animated: true}); // Scroll to top
   };
 
   const handleExplorePress = () => {
