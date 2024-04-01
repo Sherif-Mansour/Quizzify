@@ -1,152 +1,241 @@
-import React from 'react';
-import {View, Text, StyleSheet, Image, ScrollView} from 'react-native';
-import Question from '../components/Question';
+import React, {useState, useEffect} from 'react';
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableHighlight,
+  TouchableOpacity,
+} from 'react-native';
+import dailyTriviaData from '../data/dailyTriviaData';
+import {useFocusEffect} from '@react-navigation/native';
+import quizData from '../data/quizData'; // Import quizData
+import {RadioButton} from 'react-native-paper'; // Import RadioButton component from react-native-paper
 
-const logoImage = require('../images/logo-no-background.png');
-const homeIcon = require('../images/icons8-home-50.png');
-const categoryIcon = require('../images/CategoryIcon.png');
-const quizIcon = require('../images/QuizIcon.png');
-const moreIcon = require('../images/MoreIcon.png');
+const HomeScreen = ({navigation}) => {
+  const [questionState, setQuestionState] = useState('unsubmitted');
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [currentQuestion, setCurrentQuestion] = useState(null);
 
-export default function HomeScreen() {
-  const [questionState, setQuestionState] = React.useState('unanswered');
+  // Reset the current question when the screen regains focus
+  useFocusEffect(
+    React.useCallback(() => {
+      resetCurrentQuestion();
+      setQuestionState('unsubmitted');
+      setSelectedOption(null);
+    }, []),
+  );
 
-  const handleQuestionSubmit = () => {
+  // Function to select a random question from the dailyTriviaData array
+  const selectRandomQuestion = () => {
+    const randomIndex = Math.floor(Math.random() * dailyTriviaData.length);
+    return dailyTriviaData[randomIndex];
+  };
+
+  // Function to reset the current question
+  const resetCurrentQuestion = () => {
+    setCurrentQuestion(selectRandomQuestion());
+  };
+
+  useEffect(() => {
+    resetCurrentQuestion(); // Initial random question selection
+  }, []);
+
+  const handlePlayPress = () => {
+    // Select a random category from quizData
+    const randomCategoryIndex = Math.floor(Math.random() * quizData.length);
+    const randomCategory = quizData[randomCategoryIndex].category;
+    // Navigate to QuizScreen with the randomly selected category
+    navigation.navigate('Quiz', {category: randomCategory});
+  };
+
+  const handleExplorePress = () => {
+    navigation.navigate('Category');
+  };
+
+  const handleSubmitAnswer = optionIndex => {
+    setSelectedOption(optionIndex);
     setQuestionState('submitted');
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.body}>
-        <Text style={styles.text}>
-          "Welcome to Quizzifiy! - the ultimate destination for trivia
-          enthusiasts! Embark on a thrilling journey of knowledge and
-          entertainment with our diverse range of quizzes covering a wide array
-          of topics. From history and geography to music and sports. With
-          Quizzifiy, learning is fun and engaging, making it the perfect
-          companion for both casual gamers and avid learners. Get ready to quiz,
-          learn and repeat with Quizzifiy! - where knowledge meets excitement!"
-        </Text>
+      <Text style={styles.heading}>Welcome to Quizzify!</Text>
+      <Text style={styles.description}>
+        Quizzify is a fun way to test your knowledge across various categories.
+        Ready to challenge yourself?
+      </Text>
 
-        <View style={styles.paragraphContainer}>
-          <Text style={styles.triviaHeaderText}>Trivia of the day:</Text>
-          <Question
-            question={
-              'Which planet in our solar system is known as the "Red Planet"?'
-            }
-            options={['Mercury', 'Saturn', 'Venus', 'Mars']}
-            state={questionState}
-            correctAnswer={'Mars'}
-          />
-          <Text
-            style={styles.buttonTextSubmit}
-            onPress={() => handleQuestionSubmit()}>
-            Submit
-          </Text>
-        </View>
-        <View style={styles.buttonContainer}>
-          <Text style={styles.buttonTextPlay}>Play</Text>
-          <Text style={styles.buttonTextExplore}>Explore</Text>
-        </View>
+      <View style={styles.triviaContainer}>
+        <Text style={styles.triviaSubtitle}>Trivia of the Day!</Text>
+        {currentQuestion && (
+          <View style={styles.questionWrapper}>
+            <View style={styles.questionContainer}>
+              <Text style={styles.questionText}>
+                {currentQuestion.question}
+              </Text>
+              {currentQuestion.options.map((option, optionIndex) => {
+                const selected = selectedOption === optionIndex;
+                const isCorrect = option === currentQuestion.correct;
+                return (
+                  <TouchableOpacity
+                    key={optionIndex}
+                    style={[
+                      styles.optionContainer,
+                      questionState == 'submitted' &&
+                      selectedOption === optionIndex &&
+                      isCorrect
+                        ? styles.correctOptionContainer
+                        : questionState == 'submitted' &&
+                          selectedOption === optionIndex
+                        ? styles.incorrectOptionContainer
+                        : questionState == 'submitted' && isCorrect
+                        ? styles.showCorrectAnswerContainer
+                        : null,
+                    ]}
+                    onPress={() => handleSubmitAnswer(optionIndex)}
+                    disabled={questionState == 'submitted'}>
+                    <RadioButton
+                      value={optionIndex}
+                      status={selected ? 'checked' : 'unchecked'}
+                      onPress={() => handleSubmitAnswer(optionIndex)}
+                      disabled={questionState == 'submitted'}
+                      color="#FFFFFF"
+                    />
+                    <Text style={styles.optionText}>{option}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+              {questionState == 'submitted' &&
+                (selectedOption ==
+                currentQuestion.options.indexOf(currentQuestion.correct) ? (
+                  <Text style={styles.answerText}>Correct</Text>
+                ) : (
+                  <Text style={styles.answerText}>Incorrect</Text>
+                ))}
+            </View>
+          </View>
+        )}
+      </View>
+
+      <View style={styles.buttonsContainer}>
+        <TouchableHighlight
+          style={styles.playButton}
+          onPress={handlePlayPress}
+          underlayColor="transparent">
+          <Text style={styles.buttonText}>Play</Text>
+        </TouchableHighlight>
+        <TouchableHighlight
+          style={styles.exploreButton}
+          onPress={handleExplorePress}
+          underlayColor="transparent">
+          <Text style={styles.buttonText}>Explore</Text>
+        </TouchableHighlight>
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0569b0',
-  },
-
-  headerBackground: {
-    backgroundColor: '#0096FF',
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  logo: {
-    width: -100,
-    height: 100,
-    resizeMode: 'contain',
-    alignItems: 'center',
-  },
-  body: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 20,
+    backgroundColor: '#0569B0',
   },
-  text: {
-    fontSize: 18,
-    color: 'white',
-    flex: 1,
-    marginTop: 20,
-    paddingLeft: 20,
-    paddingRight: 5,
-    textAlign: 'center',
-  },
-
-  paragraphContainer: {
-    marginVertical: 5,
-    borderWidth: 0.5,
-    borderColor: 'black',
-    borderRadius: 3,
-    paddingBottom: 10,
-    backgroundColor: '#0096FF',
-    alignItems: 'center',
-
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  triviaHeaderText: {
-    fontSize: 18,
-    color: 'white',
+  heading: {
+    fontSize: 24,
     fontWeight: 'bold',
-    paddingTop: 10,
     marginBottom: 10,
-    textDecorationLine: 'underline',
+    color: '#FFFFFF',
   },
-  pText: {
+  description: {
     fontSize: 18,
-    color: 'white',
     textAlign: 'center',
     marginBottom: 20,
+    color: '#FFFFFF',
   },
-  buttonContainer: {
+  triviaSubtitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+    marginBottom: 10,
+    color: '#FFFFFF',
+  },
+  triviaContainer: {
+    backgroundColor: '#47B2FF',
+    marginVertical: 20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 5,
+    width: '95%',
+    alignItems: 'center',
+  },
+  questionContainer: {
+    marginBottom: 5,
+    alignItems: 'flex-start',
+  },
+  questionText: {
+    fontSize: 18,
+    color: '#FFFFFF',
+    marginBottom: 10,
+    textAlign: 'left',
+  },
+  optionContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginBottom: 5,
+    borderRadius: 5,
+    padding: 3,
     width: '100%',
   },
-  buttonTextSubmit: {
-    fontSize: 20,
-    color: 'white',
-    backgroundColor: 'red',
-    padding: 10,
-    borderRadius: 29,
-    margin: 10,
-    textAlign: 'center',
-    width: 100,
-    borderColor: 'black',
+  optionText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    marginLeft: 10,
+    flex: 1,
   },
-  buttonTextPlay: {
-    fontSize: 20,
-    color: 'white',
+  correctOptionContainer: {
+    backgroundColor: '#4CAF50',
+  },
+  incorrectOptionContainer: {
+    backgroundColor: '#DC143C',
+  },
+  showCorrectAnswerContainer: {
+    backgroundColor: '#FF5722',
+  },
+  answerText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  playButton: {
     backgroundColor: 'orange',
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 29,
     margin: 10,
-    textAlign: 'center',
-    width: 100,
-    borderColor: 'black',
+    flex: 1,
   },
-  buttonTextExplore: {
+  exploreButton: {
+    backgroundColor: 'green',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 29,
+    margin: 10,
+    flex: 1,
+  },
+  buttonText: {
     fontSize: 20,
     color: 'white',
-    backgroundColor: 'green',
-    padding: 10,
-    borderRadius: 29,
-    margin: 10,
     textAlign: 'center',
-    width: 100,
-    borderColor: 'black',
   },
 });
+
+export default HomeScreen;
