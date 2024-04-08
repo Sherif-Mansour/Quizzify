@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#FFFFFF',
   },
   infoContainer: {
     marginBottom: 20,
@@ -54,6 +55,7 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 16,
     textAlign: 'center',
+    color: '#FFFFFF',
   },
   sectionBackground: {
     backgroundColor: '#47B2FF',
