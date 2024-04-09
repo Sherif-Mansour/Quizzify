@@ -32,7 +32,9 @@ const QuizScreen = ({route}) => {
   const {category} = route.params;
   const questions = quizData.find(item => item.category === category).questions;
   const initialSelectedOptions = new Array(questions.length).fill(-1);
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState(
+    initialSelectedOptions,
+  );
   const [state, setState] = useState('no quiz');
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
@@ -68,7 +70,7 @@ const QuizScreen = ({route}) => {
   const handleOptionSelect = (index, optionIndex) => {
     const updatedOptions = [...selectedOptions];
     updatedOptions[index] =
-      updatedOptions[index] === optionIndex ? -1 : optionIndex;
+      updatedOptions[index] === optionIndex ? -1 : optionIndex; // Toggle selection based on current selection state
     setSelectedOptions(updatedOptions);
   };
 
@@ -82,17 +84,30 @@ const QuizScreen = ({route}) => {
         selectedOption ===
         questions[index].options.indexOf(questions[index].correct)
       ) {
-        correct++;
+        correct++; // Increment correct count if the selected option matches the correct index
       } else if (selectedOption === -1) {
-        skipped++;
+        skipped++; // Increment skipped count if the selected option is -1 (unanswered)
       } else {
-        incorrect++;
+        incorrect++; // Increment incorrect count for all other cases
       }
     });
     setCorrectCount(correct);
     setIncorrectCount(incorrect);
     setSkippedCount(skipped);
   };
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setSelectedOptions(initialSelectedOptions);
+      setState('started');
+      setCorrectCount(0);
+      setIncorrectCount(0);
+      setSkippedCount(0);
+      scrollViewRef.current.scrollTo({y: 0, animated: true}); // Scroll to top
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const onScroll = event => {
     const {layoutMeasurement, contentOffset, contentSize} = event.nativeEvent;
@@ -120,7 +135,7 @@ const QuizScreen = ({route}) => {
 
   const handleReviewPress = () => {
     setState('review');
-    scrollViewRef.current?.scrollTo({y: 0, animated: true});
+    scrollViewRef.current.scrollTo({y: 0, animated: true}); // Scroll to top
   };
 
   const handlePlayPress = () => {
